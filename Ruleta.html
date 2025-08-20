@@ -1,0 +1,667 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CasaRetro Roulette - Pixel Edition</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
+    
+    <script>
+        // Tailwind Config
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { 'pixel': ['VT323', 'monospace'] },
+                    colors: {
+                        'arcade-black': '#1a1a1a', 'arcade-bg': '#2c2c3a', 'arcade-blue': '#00a8f3',
+                        'arcade-pink': '#f72585', 'arcade-purple': '#7209b7', 'arcade-gray': '#4a4a5a',
+                        'arcade-light': '#f0f0f0',
+                    },
+                    boxShadow: {
+                        'pixel-sm': '4px 4px 0px 0px rgba(0,0,0,1)',
+                        'pixel-md': '6px 6px 0px 0px rgba(0,0,0,1)',
+                        'neon': '0 0 5px #f72585, 0 0 10px #f72585, 0 0 15px #f72585',
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        html { scroll-behavior: smooth; }
+        body {
+            font-family: 'pixel', monospace; background-color: #1a1a1a;
+            background-image: linear-gradient(rgba(44, 44, 58, 0.9), rgba(44, 44, 58, 0.9)),
+                              url('https://www.transparenttextures.com/patterns/carbon-fibre.png');
+            color: #f0f0f0; text-shadow: 2px 2px #000;
+            transition: opacity 0.3s ease-in-out;
+        }
+        .main-container {
+            border: 4px solid #1a1a1a;
+            box-shadow: inset 0 0 0 4px #4a4a5a, 0 0 20px rgba(247, 37, 133, 0.3);
+        }
+        .wheel-container::before {
+            content: ''; position: absolute; top: -20px; left: 50%;
+            transform: translateX(-50%); width: 0; height: 0;
+            border-left: 20px solid transparent; border-right: 20px solid transparent;
+            border-bottom: 30px solid #f72585; filter: drop-shadow(0 4px 0 #000); z-index: 10;
+        }
+        #roulette-wheel {
+            border-radius: 50%; border: 8px solid #1a1a1a;
+            box-shadow: inset 0 0 0 8px #4a4a5a, 0 0 25px rgba(0, 168, 243, 0.5);
+        }
+        #spin-button {
+            width: 80px; height: 80px; background-color: #f72585; border: 4px solid #1a1a1a;
+            box-shadow: inset 0 0 0 4px #4a4a5a, 0 8px 0 0 #7209b7;
+            transition: all 0.1s ease-in-out;
+        }
+        #spin-button:active {
+            transform: translate(-50%, -50%) translateY(4px);
+            box-shadow: inset 0 0 0 4px #4a4a5a, 0 4px 0 0 #7209b7;
+        }
+        .pixel-button {
+            border: 4px solid #1a1a1a; background-color: #2c2c3a; padding: 10px 16px;
+            font-size: 1.25rem; transition: all 0.2s ease; cursor: pointer;
+            box-shadow: 4px 4px 0px 0px #1a1a1a;
+        }
+        .pixel-button:hover { transform: translate(2px, 2px); box-shadow: 2px 2px 0px 0px #1a1a1a; }
+        .pixel-button:active, .pixel-button:disabled {
+            transform: translate(4px, 4px); box-shadow: 0px 0px 0px 0px #1a1a1a;
+        }
+        .pixel-button:disabled {
+            cursor: not-allowed; background-color: #4a4a5a !important; color: #2c2c3a !important;
+        }
+        .cover-item img {
+            border: 4px solid #1a1a1a; box-shadow: inset 0 0 0 4px #4a4a5a;
+            transition: all 0.2s ease; image-rendering: pixelated;
+        }
+        .cover-item.in-wheel img {
+            opacity: 1; transform: scale(1.05);
+            box-shadow: inset 0 0 0 4px #00a8f3, 0 0 15px rgba(0, 168, 243, 0.7);
+        }
+        .cover-item:not(.in-wheel) img { opacity: 0.4; filter: grayscale(80%); }
+        .modal-content {
+            border: 4px solid #1a1a1a;
+            box-shadow: inset 0 0 0 4px #4a4a5a, 0 0 30px rgba(247, 37, 133, 0.5);
+        }
+        .initials-indicator {
+            position: absolute; bottom: 8px; left: 8px; background-color: #00a8f3;
+            color: #1a1a1a; padding: 2px 8px; font-size: 1rem; text-shadow: none;
+            box-shadow: 2px 2px 0px #000; opacity: 0; transition: opacity 0.2s ease;
+        }
+        .cover-item.in-wheel .initials-indicator { opacity: 1; }
+        
+        .game-select-list { max-height: 50vh; overflow-y: auto; }
+        .game-select-item {
+            display: flex; align-items: center; padding: 8px;
+            background-color: #4a4a5a; border-bottom: 4px solid #2c2c3a;
+            cursor: pointer; transition: background-color 0.2s;
+        }
+        .game-select-item.is-duplicate {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        .game-select-item:not(.is-duplicate):hover { background-color: #7209b7; }
+        .pixel-checkbox { -webkit-appearance: none; appearance: none;
+            width: 28px; height: 28px; background-color: #2c2c3a;
+            border: 4px solid #1a1a1a; box-shadow: inset 0 0 0 4px #4a4a5a;
+            cursor: pointer; position: relative; margin-right: 12px;
+        }
+        .pixel-checkbox:checked { background-color: #f72585; box-shadow: inset 0 0 0 4px #7209b7; }
+        .pixel-checkbox:checked::after {
+            content: 'X'; position: absolute; top: 50%; left: 50%;
+            transform: translate(-50%, -50%); color: #f0f0f0;
+            font-size: 20px; text-shadow: 2px 2px #000;
+        }
+        .pixel-checkbox:disabled { cursor: not-allowed; }
+    </style>
+</head>
+<body class="font-pixel text-arcade-light text-xl">
+
+    <div class="container mx-auto p-4 md:p-8 max-w-6xl">
+        <header class="text-center mb-12">
+            <h1 class="text-6xl md:text-8xl font-black uppercase text-arcade-pink tracking-widest" style="text-shadow: 4px 4px #7209b7;">
+                CasaRetro Roulette
+            </h1>
+            <p class="text-arcade-blue mt-4 text-2xl">SELECT YOUR FIGHTER</p>
+        </header>
+
+        <main class="flex flex-col lg:flex-row items-center justify-center gap-12">
+            <div class="flex flex-col items-center">
+                <div class="wheel-container relative w-[320px] h-[320px] sm:w-[500px] sm:h-[500px]">
+                    <canvas id="roulette-wheel" width="500" height="500"></canvas>
+                    <button id="spin-button" class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full z-10"></button>
+                </div>
+            </div>
+            <section class="w-full max-w-md bg-arcade-bg p-6 main-container">
+                <h2 class="text-3xl font-bold mb-6 text-center uppercase">INSERT COIN</h2>
+                <div class="flex flex-col gap-4 mt-6">
+                    <button id="load-sagas-button" class="pixel-button bg-arcade-blue text-arcade-black w-full text-2xl">LOAD SAGAS</button>
+                    <div class="grid grid-cols-2 gap-4">
+                        <button id="reset-button" class="pixel-button bg-arcade-pink text-arcade-black w-full">CLEAR WHEEL</button>
+                        <button id="clear-library-button" class="pixel-button bg-arcade-purple text-arcade-light w-full">CLEAR LIBRARY</button>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <footer class="mt-16 bg-arcade-bg p-6 main-container">
+             <h2 class="text-4xl font-bold mb-6 text-center uppercase">Game Library</h2>
+            <div id="covers-gallery" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4"></div>
+        </footer>
+    </div>
+    
+    <!-- Winner Modal -->
+    <div id="winner-modal" class="modal-overlay fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center p-4 hidden z-50">
+        <div class="modal-content bg-arcade-bg text-center p-8 max-w-md w-full">
+            <h2 class="text-4xl font-bold text-arcade-blue mb-4 uppercase">WINNER!</h2>
+            <img id="winner-cover" src="" alt="Portada del ganador" class="w-full mb-4" style="aspect-ratio: 3 / 4; object-fit: cover; border: 4px solid #1a1a1a; box-shadow: inset 0 0 0 4px #4a4a5a;">
+            <h3 id="winner-name" class="text-5xl font-black uppercase text-arcade-pink" style="text-shadow: 3px 3px #7209b7;"></h3>
+            <button id="close-modal-button" class="mt-8 pixel-button bg-arcade-purple text-arcade-light">PLAY AGAIN</button>
+        </div>
+    </div>
+    
+    <!-- Saga Selection Modal -->
+    <div id="saga-selection-modal" class="modal-overlay fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center p-4 hidden z-50">
+        <div class="modal-content bg-arcade-bg text-center p-8 max-w-lg w-full">
+            <h2 class="text-4xl font-bold text-arcade-blue mb-6 uppercase">CHOOSE YOUR SAGA</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <button data-saga="the king of fighters" data-label="KOF" class="saga-select-btn pixel-button bg-arcade-pink text-arcade-black text-2xl">KOF</button>
+                <button data-saga="tekken" data-label="TEKKEN" class="saga-select-btn pixel-button bg-arcade-pink text-arcade-black text-2xl">TEKKEN</button>
+                <button data-saga="street fighter" data-label="STREET FIGHTER" class="saga-select-btn pixel-button bg-arcade-pink text-arcade-black text-2xl">STREET FIGHTER</button>
+            </div>
+            <button id="close-saga-modal-button" class="mt-8 pixel-button bg-arcade-gray text-arcade-light">CANCEL</button>
+        </div>
+    </div>
+
+    <!-- Game Selection Modal -->
+    <div id="game-selection-modal" class="modal-overlay fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center p-4 hidden z-50">
+        <div class="modal-content bg-arcade-bg p-8 max-w-2xl w-full">
+            <h2 id="game-select-title" class="text-4xl font-bold text-arcade-blue mb-6 text-center uppercase">SELECT GAMES</h2>
+            <div id="game-select-list" class="game-select-list bg-arcade-black p-2 mb-6"></div>
+            <div class="flex justify-between gap-4">
+                <button id="add-selected-games-button" class="pixel-button bg-arcade-blue text-arcade-black flex-grow">ADD SELECTED</button>
+                <button id="close-game-select-modal-button" class="pixel-button bg-arcade-gray text-arcade-light">CANCEL</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            // --- DOM ELEMENT REFERENCES ---
+            const canvas = document.getElementById('roulette-wheel');
+            const ctx = canvas.getContext('2d');
+            const spinButton = document.getElementById('spin-button');
+            const coversGallery = document.getElementById('covers-gallery');
+            const resetButton = document.getElementById('reset-button');
+            const winnerModal = document.getElementById('winner-modal');
+            const winnerCover = document.getElementById('winner-cover');
+            const winnerName = document.getElementById('winner-name');
+            const closeModalButton = document.getElementById('close-modal-button');
+            const loadSagasButton = document.getElementById('load-sagas-button');
+            const sagaSelectionModal = document.getElementById('saga-selection-modal');
+            const closeSagaModalButton = document.getElementById('close-saga-modal-button');
+            const sagaSelectButtons = document.querySelectorAll('.saga-select-btn');
+            const gameSelectionModal = document.getElementById('game-selection-modal');
+            const gameSelectList = document.getElementById('game-select-list');
+            const gameSelectTitle = document.getElementById('game-select-title');
+            const addSelectedGamesButton = document.getElementById('add-selected-games-button');
+            const closeGameSelectModalButton = document.getElementById('close-game-select-modal-button');
+            const clearLibraryButton = document.getElementById('clear-library-button');
+            
+            const API_KEY = "087e6ad9649b418e90d34190f6da4980";
+            
+            // --- APPLICATION STATE ---
+            let allGames = [];
+            let gamesInWheel = [];
+            let apiCache = {}; // NEW: Object to hold cached API results
+            const wheelColors = ["#f72585", "#7209b7", "#00a8f3", "#4a4a5a"];
+            let startAngle = 0;
+            let arc = 0;
+            let isSpinning = false;
+            let spinTimeout = null;
+            let audioContext;
+            let lastTickAngle = 0;
+
+            // --- CACHE FUNCTIONS ---
+            function loadCacheFromStorage() {
+                const cachedData = localStorage.getItem('gameApiCache');
+                if (cachedData) {
+                    apiCache = JSON.parse(cachedData);
+                }
+            }
+
+            function saveCacheToStorage() {
+                localStorage.setItem('gameApiCache', JSON.stringify(apiCache));
+            }
+
+            // --- CORE FUNCTIONS ---
+
+            function populateSelectionModal(gameData) {
+                gameSelectList.innerHTML = ''; // Clear previous list
+                if (gameData.length === 0) {
+                    gameSelectList.innerHTML = '<p class="text-center p-8">NO GAMES FOUND</p>';
+                    return;
+                }
+
+                gameData.forEach(apiGame => {
+                    if (!apiGame.background_image) return;
+
+                    const isDuplicate = allGames.some(g => g.name === apiGame.name);
+
+                    const item = document.createElement('label');
+                    item.className = 'game-select-item';
+                    if (isDuplicate) {
+                        item.classList.add('is-duplicate');
+                        item.title = "Already in library";
+                    }
+                    
+                    const checkbox = document.createElement('input');
+                    checkbox.type = 'checkbox';
+                    checkbox.className = 'pixel-checkbox';
+                    checkbox.dataset.gameData = JSON.stringify(apiGame);
+                    
+                    if (isDuplicate) {
+                        checkbox.checked = true;
+                        checkbox.disabled = true;
+                    }
+
+                    const img = document.createElement('img');
+                    img.src = apiGame.background_image;
+                    img.className = 'w-12 h-16 object-cover mx-4 border-2 border-arcade-black';
+
+                    const nameSpan = document.createElement('span');
+                    nameSpan.textContent = apiGame.name;
+
+                    item.appendChild(checkbox);
+                    item.appendChild(img);
+                    item.appendChild(nameSpan);
+                    gameSelectList.appendChild(item);
+                });
+            }
+
+            async function fetchSagaForSelection(searchQuery) {
+                const sagaKey = searchQuery.replace(/\s+/g, '_'); // Create a key for the cache
+                const sagaName = searchQuery.toUpperCase();
+                gameSelectTitle.textContent = `SELECT FROM ${sagaName}`;
+                
+                sagaSelectionModal.classList.add('hidden');
+                gameSelectionModal.classList.remove('hidden');
+
+                // Check cache first
+                if (apiCache[sagaKey]) {
+                    populateSelectionModal(apiCache[sagaKey]);
+                    return; // Use cached data and exit
+                }
+
+                // If not in cache, fetch from API
+                gameSelectList.innerHTML = `<p class="text-center p-8">FETCHING ${sagaName} GAMES...</p>`;
+                sagaSelectButtons.forEach(button => button.disabled = true);
+
+                try {
+                    const API_URL = `https://api.rawg.io/api/games?key=${API_KEY}&search=${encodeURIComponent(searchQuery)}&page_size=40`;
+                    const response = await fetch(API_URL);
+                    if (!response.ok) throw new Error(`API Error: ${response.statusText}`);
+                    
+                    const data = await response.json();
+                    
+                    // Save to cache and populate modal
+                    apiCache[sagaKey] = data.results;
+                    saveCacheToStorage();
+                    populateSelectionModal(data.results);
+
+                } catch (error) {
+                    console.error("Failed to fetch games for selection:", error);
+                    gameSelectList.innerHTML = '<p class="text-center p-8 text-arcade-pink">ERROR LOADING GAMES</p>';
+                } finally {
+                    sagaSelectButtons.forEach(button => button.disabled = false);
+                }
+            }
+
+            async function handleAddSelectedGames() {
+                const selectedCheckboxes = gameSelectList.querySelectorAll('input[type="checkbox"]:checked:not(:disabled)');
+                if (selectedCheckboxes.length === 0) {
+                    gameSelectionModal.classList.add('hidden');
+                    return;
+                }
+
+                addSelectedGamesButton.textContent = 'LOADING...';
+                addSelectedGamesButton.disabled = true;
+
+                const gamePromises = Array.from(selectedCheckboxes).map(checkbox => {
+                    return new Promise(async (resolve) => {
+                        const apiGame = JSON.parse(checkbox.dataset.gameData);
+
+                        if (allGames.some(g => g.name === apiGame.name)) {
+                            resolve(null);
+                            return;
+                        }
+
+                        const imageForWheel = new Image();
+                        imageForWheel.crossOrigin = "Anonymous";
+                        imageForWheel.onload = () => resolve({
+                            name: apiGame.name,
+                            image: imageForWheel,
+                            coverUrl: apiGame.background_image,
+                            initials: generateGameInitials(apiGame.name)
+                        });
+                        imageForWheel.onerror = () => resolve(null);
+                        imageForWheel.src = apiGame.background_image;
+                    });
+                });
+
+                const newGames = (await Promise.all(gamePromises)).filter(Boolean);
+                
+                allGames.push(...newGames);
+                gamesInWheel.push(...newGames);
+                newGames.forEach(displayCoverInGallery);
+                saveGamesToStorage();
+                updateGalleryVisuals();
+                drawRoulette();
+
+                addSelectedGamesButton.textContent = 'ADD SELECTED';
+                addSelectedGamesButton.disabled = false;
+                gameSelectionModal.classList.add('hidden');
+            }
+            
+            function handleClearLibrary() {
+                allGames = [];
+                gamesInWheel = [];
+                localStorage.removeItem('fgcRouletteGames');
+                // Also clear the API cache
+                localStorage.removeItem('gameApiCache');
+                apiCache = {};
+                coversGallery.innerHTML = '';
+                drawRoulette();
+            }
+
+            function drawRoulette() {
+                if (!canvas.getContext) return;
+                const outsideRadius = 250;
+                const textRadius = 180;
+                const insideRadius = 0;
+                const imageRadius = 110;
+
+                arc = gamesInWheel.length > 0 ? 2 * Math.PI / gamesInWheel.length : 2 * Math.PI;
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                
+                if (gamesInWheel.length === 0) {
+                    ctx.fillStyle = '#2c2c3a';
+                    ctx.beginPath();
+                    ctx.arc(250, 250, outsideRadius, 0, 2 * Math.PI, false);
+                    ctx.fill();
+                    ctx.save();
+                    ctx.fillStyle = '#f0f0f0';
+                    ctx.font = '30px VT323, monospace';
+                    ctx.textAlign = 'center';
+                    ctx.textBaseline = 'middle';
+                    ctx.fillText('ADD GAMES TO THE WHEEL', 250, 250);
+                    ctx.restore();
+                    return;
+                }
+
+                gamesInWheel.forEach((game, i) => {
+                    const angle = startAngle + i * arc;
+                    ctx.fillStyle = wheelColors[i % wheelColors.length];
+                    ctx.beginPath();
+                    ctx.arc(250, 250, outsideRadius, angle, angle + arc, false);
+                    ctx.arc(250, 250, insideRadius, angle + arc, angle, true);
+                    ctx.strokeStyle = '#1a1a1a';
+                    ctx.lineWidth = 8;
+                    ctx.stroke();
+                    ctx.fill();
+                    ctx.save();
+                    ctx.fillStyle = '#f0f0f0';
+                    ctx.font = 'bold 24px VT323, monospace';
+                    ctx.shadowColor = "black";
+                    ctx.shadowOffsetX = 2;
+                    ctx.shadowOffsetY = 2;
+                    ctx.shadowBlur = 0;
+                    ctx.translate(250 + Math.cos(angle + arc / 2) * textRadius, 250 + Math.sin(angle + arc / 2) * textRadius);
+                    ctx.rotate(angle + arc / 2 + Math.PI / 2);
+                    const text = game.name.toUpperCase();
+                    ctx.fillText(text, -ctx.measureText(text).width / 2, 0);
+                    ctx.restore();
+                    ctx.save();
+
+                    if (game.image) {
+                         ctx.translate(250 + Math.cos(angle + arc / 2) * imageRadius, 250 + Math.sin(angle + arc / 2) * imageRadius);
+                        ctx.rotate(angle + arc / 2 + Math.PI / 2);
+                        ctx.drawImage(game.image, -30, -40, 60, 80);
+                        ctx.strokeStyle = '#f0f0f0';
+                        ctx.lineWidth = 3;
+                        ctx.strokeRect(-30, -40, 60, 80);
+                    }
+                    ctx.restore();
+                });
+            }
+
+            function displayCoverInGallery(game) {
+                const coverDiv = document.createElement('div');
+                coverDiv.className = 'cover-item relative group';
+                coverDiv.dataset.name = game.name;
+
+                const coverImg = document.createElement('img');
+                coverImg.src = game.coverUrl;
+                coverImg.alt = game.name;
+                coverImg.className = 'w-full cursor-pointer';
+                coverImg.style.aspectRatio = '3 / 4';
+                coverImg.style.objectFit = 'cover';
+                coverImg.onerror = () => { coverImg.src = 'https://placehold.co/275x387/2c2c3a/f0f0f0?text=Error'; };
+                
+                const deleteButton = document.createElement('button');
+                deleteButton.className = 'delete-button absolute top-2 right-2 w-8 h-8 bg-arcade-pink text-arcade-black text-2xl flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200 pixel-button';
+                deleteButton.innerHTML = '&times;';
+                deleteButton.style.boxShadow = '2px 2px 0px #000';
+                deleteButton.addEventListener('click', (event) => {
+                    event.stopPropagation();
+                    handleDeleteGame(game.name);
+                });
+
+                const initialsIndicator = document.createElement('div');
+                initialsIndicator.className = 'initials-indicator';
+                initialsIndicator.textContent = game.initials;
+
+                coverDiv.appendChild(coverImg);
+                coverDiv.appendChild(deleteButton);
+                coverDiv.appendChild(initialsIndicator);
+                coverDiv.addEventListener('click', () => { toggleGameInWheel(game.name); });
+                coversGallery.appendChild(coverDiv);
+            }
+            
+            function generateGameInitials(name) {
+                const lowerName = name.toLowerCase();
+                let base = '';
+                
+                if (lowerName.includes('the king of fighters')) base = 'KOF';
+                else if (lowerName.includes('street fighter')) base = 'SF';
+                else if (lowerName.includes('tekken')) base = 'T';
+                else { return name.substring(0, 4); }
+
+                const match = name.match(/\d+|V|IV|III|II|Alpha|Ultimate Match/i);
+                if (match) {
+                    let suffix = match[0];
+                    if(suffix.toLowerCase() === 'alpha') return base + 'A' + (name.match(/Alpha (\d)/i)?.[1] || '');
+                    if(suffix.toLowerCase() === 'ultimate match') return base + (name.match(/'(\d\d)/i)?.[1] || '') + 'UM';
+                    return base + suffix;
+                }
+                
+                return base;
+            }
+            
+            function handleDeleteGame(gameName) {
+                allGames = allGames.filter(game => game.name !== gameName);
+                gamesInWheel = gamesInWheel.filter(game => game.name !== gameName);
+                const coverElement = document.querySelector(`.cover-item[data-name="${gameName}"]`);
+                if (coverElement) coverElement.remove();
+                saveGamesToStorage();
+                drawRoulette();
+            }
+
+            function toggleGameInWheel(gameName) {
+                const gameIndexInWheel = gamesInWheel.findIndex(game => game.name === gameName);
+                if (gameIndexInWheel > -1) {
+                    gamesInWheel.splice(gameIndexInWheel, 1);
+                } else {
+                    const gameToAdd = allGames.find(game => game.name === gameName);
+                    if (gameToAdd) gamesInWheel.push(gameToAdd);
+                }
+                updateGalleryVisuals();
+                drawRoulette();
+            }
+
+            function updateGalleryVisuals() {
+                document.querySelectorAll('.cover-item').forEach(item => {
+                    item.classList.toggle('in-wheel', gamesInWheel.some(game => game.name === item.dataset.name));
+                });
+            }
+
+            function saveGamesToStorage() {
+                const storableList = allGames.map(game => ({ name: game.name, coverUrl: game.coverUrl, initials: game.initials }));
+                localStorage.setItem('fgcRouletteGames', JSON.stringify(storableList));
+            }
+
+            async function loadGamesFromStorage() {
+                const savedGames = localStorage.getItem('fgcRouletteGames');
+                if (!savedGames) {
+                    drawRoulette();
+                    return;
+                }
+                const parsedGames = JSON.parse(savedGames);
+                if (parsedGames.length === 0) {
+                    drawRoulette();
+                    return;
+                }
+
+                const imageLoadPromises = parsedGames.map(savedGame => {
+                    return new Promise((resolve) => {
+                        const img = new Image();
+                        img.crossOrigin = "Anonymous";
+                        img.src = savedGame.coverUrl;
+                        img.onload = () => {
+                            const newGame = { 
+                                name: savedGame.name, 
+                                image: img, 
+                                coverUrl: savedGame.coverUrl,
+                                initials: savedGame.initials || generateGameInitials(savedGame.name)
+                            };
+                            allGames.push(newGame);
+                            gamesInWheel.push(newGame);
+                            displayCoverInGallery(newGame);
+                            resolve();
+                        };
+                        img.onerror = () => resolve();
+                    });
+                });
+                
+                await Promise.all(imageLoadPromises);
+                
+                drawRoulette();
+                updateGalleryVisuals();
+            }
+
+            function handleReset() {
+                gamesInWheel = [];
+                updateGalleryVisuals();
+                drawRoulette();
+            }
+
+            function playSound(type, duration = 0.05, frequency = 800, gain = 0.1) {
+                if (!audioContext) return;
+                const oscillator = audioContext.createOscillator();
+                const gainNode = audioContext.createGain();
+                oscillator.type = type;
+                oscillator.frequency.setValueAtTime(frequency, audioContext.currentTime);
+                gainNode.gain.setValueAtTime(gain, audioContext.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + duration);
+                oscillator.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+                oscillator.start(audioContext.currentTime);
+                oscillator.stop(audioContext.currentTime + duration);
+            }
+
+            function rotateWheel(spinTime, spinTimeTotal, spinAngleStart) {
+                spinTime += 30;
+                if (spinTime >= spinTimeTotal) {
+                    stopRotateWheel();
+                    return;
+                }
+                const spinAngle = spinAngleStart - easeOut(spinTime, 0, spinAngleStart, spinTimeTotal);
+                startAngle += (spinAngle * Math.PI / 180);
+                if (startAngle - lastTickAngle > arc) {
+                    playSound('square', 0.05, 800, 0.05);
+                    lastTickAngle += arc;
+                }
+                drawRoulette();
+                spinTimeout = requestAnimationFrame(() => rotateWheel(spinTime, spinTimeTotal, spinAngleStart));
+            }
+            
+            function stopRotateWheel() {
+                cancelAnimationFrame(spinTimeout);
+                isSpinning = false;
+                spinButton.disabled = false;
+                if (gamesInWheel.length === 0) return;
+                playSound('sine', 0.5, 900, 0.2);
+                const degrees = startAngle * 180 / Math.PI + 90;
+                const arcd = arc * 180 / Math.PI;
+                const index = Math.floor((360 - degrees % 360) / arcd);
+                const winner = gamesInWheel[index];
+                if (winner) {
+                    winnerName.textContent = winner.name;
+                    winnerCover.src = winner.coverUrl;
+                    winnerModal.classList.remove('hidden');
+                }
+            }
+
+            function easeOut(t, b, c, d) {
+                const ts = (t /= d) * t;
+                const tc = ts * t;
+                return b + c * (tc + -3 * ts + 3 * t);
+            }
+
+            function handleSpin() {
+                if (isSpinning || gamesInWheel.length < 2) return;
+                if (!audioContext) audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                isSpinning = true;
+                spinButton.disabled = true;
+                const spinAngleStart = Math.random() * 10 + 10;
+                const spinTimeTotal = Math.random() * 3000 + 8000; 
+                lastTickAngle = startAngle;
+                rotateWheel(0, spinTimeTotal, spinAngleStart);
+            }
+
+            // --- EVENT LISTENERS ---
+            loadSagasButton.addEventListener('click', () => sagaSelectionModal.classList.remove('hidden'));
+            closeSagaModalButton.addEventListener('click', () => sagaSelectionModal.classList.add('hidden'));
+            sagaSelectionModal.addEventListener('click', (e) => { if (e.target === sagaSelectionModal) sagaSelectionModal.classList.add('hidden'); });
+            
+            sagaSelectButtons.forEach(button => {
+                button.addEventListener('click', () => { fetchSagaForSelection(button.dataset.saga); });
+            });
+
+            addSelectedGamesButton.addEventListener('click', handleAddSelectedGames);
+            closeGameSelectModalButton.addEventListener('click', () => gameSelectionModal.classList.add('hidden'));
+            gameSelectionModal.addEventListener('click', (e) => { if (e.target === gameSelectionModal) gameSelectionModal.classList.add('hidden'); });
+            
+            resetButton.addEventListener('click', handleReset);
+            clearLibraryButton.addEventListener('click', handleClearLibrary);
+            spinButton.addEventListener('click', handleSpin);
+            closeModalButton.addEventListener('click', () => winnerModal.classList.add('hidden'));
+            winnerModal.addEventListener('click', (e) => { if (e.target === winnerModal) winnerModal.classList.add('hidden'); });
+
+            // --- INITIALIZATION ---
+            document.body.style.opacity = '0.5';
+            loadCacheFromStorage();
+            await loadGamesFromStorage();
+            document.body.style.opacity = '1';
+        });
+    </script>
+</body>
+</html>

@@ -350,8 +350,6 @@
                         });
                         imageForWheel.onerror = () => resolve(null);
                         
-                        // --- FINAL FIX: Use a CORS proxy for the image URL ---
-                        // This prevents browser security from blocking the image load.
                         imageForWheel.src = `https://corsproxy.io/?${encodeURIComponent(apiGame.background_image)}`;
                     });
                 });
@@ -370,10 +368,13 @@
                 gameSelectionModal.classList.add('hidden');
             }
             
+            // --- PERSISTENCE CHANGE: Updated clear library function ---
             function handleClearLibrary() {
                 allGames = [];
                 gamesInWheel = [];
+                // Clear all related items from storage
                 localStorage.removeItem('fgcRouletteGames');
+                localStorage.removeItem('fgcRouletteWheelGames');
                 localStorage.removeItem('gameApiCache');
                 apiCache = {};
                 coversGallery.innerHTML = '';
@@ -503,6 +504,7 @@
                 drawRoulette();
             }
 
+            // --- PERSISTENCE CHANGE: Toggle now saves the state ---
             function toggleGameInWheel(gameName) {
                 const gameIndexInWheel = gamesInWheel.findIndex(game => game.name === gameName);
                 if (gameIndexInWheel > -1) {
@@ -511,6 +513,8 @@
                     const gameToAdd = allGames.find(game => game.name === gameName);
                     if (gameToAdd) gamesInWheel.push(gameToAdd);
                 }
+                // Save the new state of the wheel to localStorage
+                saveGamesToStorage();
                 updateGalleryVisuals();
                 drawRoulette();
             }
@@ -521,28 +525,44 @@
                 });
             }
 
+            // --- PERSISTENCE CHANGE: Updated save function ---
             function saveGamesToStorage() {
-                const storableList = allGames.map(game => ({ name: game.name, coverUrl: game.coverUrl, initials: game.initials }));
-                localStorage.setItem('fgcRouletteGames', JSON.stringify(storableList));
+                // Save the entire library of games
+                const storableLibrary = allGames.map(game => ({ 
+                    name: game.name, 
+                    coverUrl: game.coverUrl, 
+                    initials: game.initials 
+                }));
+                localStorage.setItem('fgcRouletteGames', JSON.stringify(storableLibrary));
+
+                // Save only the names of games currently in the wheel
+                const wheelGameNames = gamesInWheel.map(game => game.name);
+                localStorage.setItem('fgcRouletteWheelGames', JSON.stringify(wheelGameNames));
             }
 
+            // --- PERSISTENCE CHANGE: Updated load function ---
             async function loadGamesFromStorage() {
-                const savedGames = localStorage.getItem('fgcRouletteGames');
-                if (!savedGames) {
+                const savedLibrary = localStorage.getItem('fgcRouletteGames');
+                // Load the list of game names that should be in the wheel
+                const savedWheelGameNames = JSON.parse(localStorage.getItem('fgcRouletteWheelGames')) || [];
+
+                if (!savedLibrary) {
                     drawRoulette();
                     return;
                 }
-                const parsedGames = JSON.parse(savedGames);
-                if (parsedGames.length === 0) {
+                
+                const parsedLibrary = JSON.parse(savedLibrary);
+                if (parsedLibrary.length === 0) {
                     drawRoulette();
                     return;
                 }
 
-                const imageLoadPromises = parsedGames.map(savedGame => {
+                const imageLoadPromises = parsedLibrary.map(savedGame => {
                     return new Promise((resolve) => {
                         const img = new Image();
                         img.crossOrigin = "Anonymous";
-                        img.src = savedGame.coverUrl;
+                        // Use the CORS proxy here to prevent errors on reload
+                        img.src = `https://corsproxy.io/?${encodeURIComponent(savedGame.coverUrl)}`;
                         img.onload = () => {
                             const newGame = { 
                                 name: savedGame.name, 
@@ -550,23 +570,30 @@
                                 coverUrl: savedGame.coverUrl,
                                 initials: savedGame.initials || generateGameInitials(savedGame.name)
                             };
+                            // Add every loaded game to the main library array
                             allGames.push(newGame);
-                            gamesInWheel.push(newGame);
                             displayCoverInGallery(newGame);
-                            resolve();
+                            resolve(newGame); // Resolve with the full game object
                         };
-                        img.onerror = () => resolve();
+                        img.onerror = () => resolve(null); // Don't add games with failed images
                     });
                 });
                 
-                await Promise.all(imageLoadPromises);
+                // Wait for all images to finish loading and get the full game objects
+                const loadedGames = (await Promise.all(imageLoadPromises)).filter(Boolean);
+                
+                // Now, populate the wheel ONLY with the games whose names were saved
+                gamesInWheel = loadedGames.filter(game => savedWheelGameNames.includes(game.name));
                 
                 drawRoulette();
                 updateGalleryVisuals();
             }
 
+            // --- PERSISTENCE CHANGE: Reset now saves the empty wheel state ---
             function handleReset() {
                 gamesInWheel = [];
+                // Save the fact that the wheel is now empty
+                saveGamesToStorage();
                 updateGalleryVisuals();
                 drawRoulette();
             }

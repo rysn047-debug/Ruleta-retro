@@ -216,10 +216,13 @@
             const closeGameSelectModalButton = document.getElementById('close-game-select-modal-button');
             const clearLibraryButton = document.getElementById('clear-library-button');
             
+            // --- KEY CHANGE: API_KEY REMOVED ---
+            // The API Key is no longer needed in the front-end code for security.
+            
             // --- APPLICATION STATE ---
             let allGames = [];
             let gamesInWheel = [];
-            let apiCache = {}; // NEW: Object to hold cached API results
+            let apiCache = {}; // Object to hold cached API results
             const wheelColors = ["#f72585", "#7209b7", "#00a8f3", "#4a4a5a"];
             let startAngle = 0;
             let arc = 0;
@@ -285,42 +288,40 @@
                 });
             }
 
+            // --- KEY CHANGE: THIS ENTIRE FUNCTION IS REPLACED ---
+            // It now calls our secure serverless function on Netlify instead of RAWG directly.
             async function fetchSagaForSelection(searchQuery) {
-                // create a key for the cache
-                const sagaKey = searchQuery.replace(/\s+/g, '_'); 
+                const sagaKey = searchQuery.replace(/\s+/g, '_');
                 const sagaName = searchQuery.toUpperCase();
                 gameSelectTitle.textContent = `SELECT FROM ${sagaName}`;
                 
                 sagaSelectionModal.classList.add('hidden');
                 gameSelectionModal.classList.remove('hidden');
-            
+
                 // Check cache first (this logic remains the same)
                 if (apiCache[sagaKey]) {
                     populateSelectionModal(apiCache[sagaKey]);
                     return;
                 }
-            
+
                 // Update UI to show loading state
                 gameSelectList.innerHTML = `<p class="text-center p-8">FETCHING ${sagaName} GAMES...</p>`;
                 sagaSelectButtons.forEach(button => button.disabled = true);
-            
+
                 try {
-                    // --- KEY CHANGE ---
-                    // Instead of building the RAWG URL, we call our own serverless function.
+                    // This is the new, secure URL pointing to our Netlify function
                     const proxyUrl = `/.netlify/functions/fetch-games?search=${encodeURIComponent(searchQuery)}`;
                     const response = await fetch(proxyUrl);
-                    // --- END OF KEY CHANGE ---
                     
                     if (!response.ok) throw new Error(`Proxy Error: ${response.statusText}`);
                     
-                    // The body of the response from our function is a JSON string, so we parse it.
                     const gameData = await response.json();
                     
                     // Save to cache and populate modal
                     apiCache[sagaKey] = gameData;
                     saveCacheToStorage();
                     populateSelectionModal(gameData);
-            
+
                 } catch (error) {
                     console.error("Failed to fetch games via proxy:", error);
                     gameSelectList.innerHTML = '<p class="text-center p-8 text-arcade-pink">ERROR LOADING GAMES</p>';
@@ -349,6 +350,7 @@
                         }
 
                         const imageForWheel = new Image();
+                        // This attribute is important for loading images from other domains into a canvas
                         imageForWheel.crossOrigin = "Anonymous";
                         imageForWheel.onload = () => resolve({
                             name: apiGame.name,
@@ -356,7 +358,7 @@
                             coverUrl: apiGame.background_image,
                             initials: generateGameInitials(apiGame.name)
                         });
-                        imageForWheel.onerror = () => resolve(null);
+                        imageForWheel.onerror = () => resolve(null); // If image fails to load, don't add the game
                         imageForWheel.src = apiGame.background_image;
                     });
                 });
@@ -669,4 +671,3 @@
     </script>
 </body>
 </html>
-

@@ -216,9 +216,6 @@
             const closeGameSelectModalButton = document.getElementById('close-game-select-modal-button');
             const clearLibraryButton = document.getElementById('clear-library-button');
             
-            // --- KEY CHANGE: API_KEY REMOVED ---
-            // The API Key is no longer needed in the front-end code for security.
-            
             // --- APPLICATION STATE ---
             let allGames = [];
             let gamesInWheel = [];
@@ -288,8 +285,6 @@
                 });
             }
 
-            // --- KEY CHANGE: THIS ENTIRE FUNCTION IS REPLACED ---
-            // It now calls our secure serverless function on Netlify instead of RAWG directly.
             async function fetchSagaForSelection(searchQuery) {
                 const sagaKey = searchQuery.replace(/\s+/g, '_');
                 const sagaName = searchQuery.toUpperCase();
@@ -298,18 +293,15 @@
                 sagaSelectionModal.classList.add('hidden');
                 gameSelectionModal.classList.remove('hidden');
 
-                // Check cache first (this logic remains the same)
                 if (apiCache[sagaKey]) {
                     populateSelectionModal(apiCache[sagaKey]);
                     return;
                 }
 
-                // Update UI to show loading state
                 gameSelectList.innerHTML = `<p class="text-center p-8">FETCHING ${sagaName} GAMES...</p>`;
                 sagaSelectButtons.forEach(button => button.disabled = true);
 
                 try {
-                    // This is the new, secure URL pointing to our Netlify function
                     const proxyUrl = `/.netlify/functions/fetch-games?search=${encodeURIComponent(searchQuery)}`;
                     const response = await fetch(proxyUrl);
                     
@@ -317,7 +309,6 @@
                     
                     const gameData = await response.json();
                     
-                    // Save to cache and populate modal
                     apiCache[sagaKey] = gameData;
                     saveCacheToStorage();
                     populateSelectionModal(gameData);
@@ -350,7 +341,6 @@
                         }
 
                         const imageForWheel = new Image();
-                        // This attribute is important for loading images from other domains into a canvas
                         imageForWheel.crossOrigin = "Anonymous";
                         imageForWheel.onload = () => resolve({
                             name: apiGame.name,
@@ -358,8 +348,11 @@
                             coverUrl: apiGame.background_image,
                             initials: generateGameInitials(apiGame.name)
                         });
-                        imageForWheel.onerror = () => resolve(null); // If image fails to load, don't add the game
-                        imageForWheel.src = apiGame.background_image;
+                        imageForWheel.onerror = () => resolve(null);
+                        
+                        // --- FINAL FIX: Use a CORS proxy for the image URL ---
+                        // This prevents browser security from blocking the image load.
+                        imageForWheel.src = `https://corsproxy.io/?${encodeURIComponent(apiGame.background_image)}`;
                     });
                 });
 
@@ -381,7 +374,6 @@
                 allGames = [];
                 gamesInWheel = [];
                 localStorage.removeItem('fgcRouletteGames');
-                // Also clear the API cache
                 localStorage.removeItem('gameApiCache');
                 apiCache = {};
                 coversGallery.innerHTML = '';

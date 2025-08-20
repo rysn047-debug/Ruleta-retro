@@ -216,8 +216,6 @@
             const closeGameSelectModalButton = document.getElementById('close-game-select-modal-button');
             const clearLibraryButton = document.getElementById('clear-library-button');
             
-            const API_KEY = "087e6ad9649b418e90d34190f6da4980";
-            
             // --- APPLICATION STATE ---
             let allGames = [];
             let gamesInWheel = [];
@@ -288,37 +286,43 @@
             }
 
             async function fetchSagaForSelection(searchQuery) {
-                const sagaKey = searchQuery.replace(/\s+/g, '_'); // Create a key for the cache
+                // create a key for the cache
+                const sagaKey = searchQuery.replace(/\s+/g, '_'); 
                 const sagaName = searchQuery.toUpperCase();
                 gameSelectTitle.textContent = `SELECT FROM ${sagaName}`;
                 
                 sagaSelectionModal.classList.add('hidden');
                 gameSelectionModal.classList.remove('hidden');
-
-                // Check cache first
+            
+                // Check cache first (this logic remains the same)
                 if (apiCache[sagaKey]) {
                     populateSelectionModal(apiCache[sagaKey]);
-                    return; // Use cached data and exit
+                    return;
                 }
-
-                // If not in cache, fetch from API
+            
+                // Update UI to show loading state
                 gameSelectList.innerHTML = `<p class="text-center p-8">FETCHING ${sagaName} GAMES...</p>`;
                 sagaSelectButtons.forEach(button => button.disabled = true);
-
+            
                 try {
-                    const API_URL = `https://api.rawg.io/api/games?key=${API_KEY}&search=${encodeURIComponent(searchQuery)}&page_size=40`;
-                    const response = await fetch(API_URL);
-                    if (!response.ok) throw new Error(`API Error: ${response.statusText}`);
+                    // --- KEY CHANGE ---
+                    // Instead of building the RAWG URL, we call our own serverless function.
+                    const proxyUrl = `/.netlify/functions/fetch-games?search=${encodeURIComponent(searchQuery)}`;
+                    const response = await fetch(proxyUrl);
+                    // --- END OF KEY CHANGE ---
                     
-                    const data = await response.json();
+                    if (!response.ok) throw new Error(`Proxy Error: ${response.statusText}`);
+                    
+                    // The body of the response from our function is a JSON string, so we parse it.
+                    const gameData = await response.json();
                     
                     // Save to cache and populate modal
-                    apiCache[sagaKey] = data.results;
+                    apiCache[sagaKey] = gameData;
                     saveCacheToStorage();
-                    populateSelectionModal(data.results);
-
+                    populateSelectionModal(gameData);
+            
                 } catch (error) {
-                    console.error("Failed to fetch games for selection:", error);
+                    console.error("Failed to fetch games via proxy:", error);
                     gameSelectList.innerHTML = '<p class="text-center p-8 text-arcade-pink">ERROR LOADING GAMES</p>';
                 } finally {
                     sagaSelectButtons.forEach(button => button.disabled = false);
@@ -665,3 +669,4 @@
     </script>
 </body>
 </html>
+

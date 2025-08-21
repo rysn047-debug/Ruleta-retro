@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CasaRetro Roulette - Pixel Edition</title>
+    <title>CasaRetro Roulette - Drive Edition</title>
     
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -13,6 +13,8 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
     
+    <!-- DELETED: Redundant Google API script removed from here -->
+    
     <script>
         // Tailwind Config
         tailwind.config = {
@@ -20,8 +22,9 @@
                 extend: {
                     fontFamily: { 'pixel': ['VT323', 'monospace'] },
                     colors: {
-                        'arcade-black': '#1a1a1a', 'arcade-bg': '#2c2c3a', 'arcade-blue': '#00a8f3',
-                        'arcade-pink': '#f72585', 'arcade-purple': '#7209b7', 'arcade-gray': '#4a4a5a',
+                        'arcade-black': '#1a1a1a', 'arcade-bg': '#2c2c3a',
+                        'arcade-blue': '#00a8f3', 'arcade-pink': '#f72585',
+                        'arcade-purple': '#7209b7', 'arcade-gray': '#4a4a5a',
                         'arcade-light': '#f0f0f0',
                     },
                     boxShadow: {
@@ -37,11 +40,13 @@
     <style>
         html { scroll-behavior: smooth; }
         body {
-            font-family: 'pixel', monospace; background-color: #1a1a1a;
-            background-image: linear-gradient(rgba(44, 44, 58, 0.9), rgba(44, 44, 58, 0.9)),
-                              url('https://www.transparenttextures.com/patterns/carbon-fibre.png');
-            color: #f0f0f0; text-shadow: 2px 2px #000;
-            transition: opacity 0.3s ease-in-out;
+            font-family: 'pixel', monospace;
+            background-color: #1a1a1a;
+            background-image: 
+                linear-gradient(rgba(22, 6, 37, 0.9), rgba(44, 44, 58, 0.9)),
+                url('https://www.transparenttextures.com/patterns/carbon-fibre.png');
+            color: #f0f0f0;
+            text-shadow: 2px 2px #000;
         }
         .main-container {
             border: 4px solid #1a1a1a;
@@ -66,18 +71,15 @@
             transform: translate(-50%, -50%) translateY(4px);
             box-shadow: inset 0 0 0 4px #4a4a5a, 0 4px 0 0 #7209b7;
         }
-        .pixel-button {
-            border: 4px solid #1a1a1a; background-color: #2c2c3a; padding: 10px 16px;
-            font-size: 1.25rem; transition: all 0.2s ease; cursor: pointer;
-            box-shadow: 4px 4px 0px 0px #1a1a1a;
+        .pixel-input, .pixel-button {
+            border: 4px solid #1a1a1a; box-shadow: inset 0 0 0 4px #4a4a5a;
+            background-color: #2c2c3a; padding: 10px 16px; font-size: 1.25rem;
+            transition: all 0.2s ease;
         }
-        .pixel-button:hover { transform: translate(2px, 2px); box-shadow: 2px 2px 0px 0px #1a1a1a; }
-        .pixel-button:active, .pixel-button:disabled {
-            transform: translate(4px, 4px); box-shadow: 0px 0px 0px 0px #1a1a1a;
-        }
-        .pixel-button:disabled {
-            cursor: not-allowed; background-color: #4a4a5a !important; color: #2c2c3a !important;
-        }
+        .pixel-input:focus { outline: none; box-shadow: inset 0 0 0 4px #00a8f3; }
+        .pixel-button { cursor: pointer; box-shadow: 4px 4px 0px 0px #1a1a1a; }
+        .pixel-button:hover:not(:disabled) { transform: translate(2px, 2px); box-shadow: 2px 2px 0px 0px #1a1a1a; }
+        .pixel-button:active:not(:disabled) { transform: translate(4px, 4px); box-shadow: 0px 0px 0px 0px #1a1a1a; }
         .cover-item img {
             border: 4px solid #1a1a1a; box-shadow: inset 0 0 0 4px #4a4a5a;
             transition: all 0.2s ease; image-rendering: pixelated;
@@ -91,41 +93,18 @@
             border: 4px solid #1a1a1a;
             box-shadow: inset 0 0 0 4px #4a4a5a, 0 0 30px rgba(247, 37, 133, 0.5);
         }
-        .initials-indicator {
-            position: absolute; bottom: 8px; left: 8px; background-color: #00a8f3;
-            color: #1a1a1a; padding: 2px 8px; font-size: 1rem; text-shadow: none;
-            box-shadow: 2px 2px 0px #000; opacity: 0; transition: opacity 0.2s ease;
-        }
-        .cover-item.in-wheel .initials-indicator { opacity: 1; }
-        
-        .game-select-list { max-height: 50vh; overflow-y: auto; }
-        .game-select-item {
-            display: flex; align-items: center; padding: 8px;
-            background-color: #4a4a5a; border-bottom: 4px solid #2c2c3a;
+        /* Google Drive Modal Styles */
+        .drive-item {
             cursor: pointer; transition: background-color 0.2s;
+            border: 2px solid #4a4a5a;
         }
-        .game-select-item.is-duplicate {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
-        .game-select-item:not(.is-duplicate):hover { background-color: #7209b7; }
-        .pixel-checkbox { -webkit-appearance: none; appearance: none;
-            width: 28px; height: 28px; background-color: #2c2c3a;
-            border: 4px solid #1a1a1a; box-shadow: inset 0 0 0 4px #4a4a5a;
-            cursor: pointer; position: relative; margin-right: 12px;
-        }
-        .pixel-checkbox:checked { background-color: #f72585; box-shadow: inset 0 0 0 4px #7209b7; }
-        .pixel-checkbox:checked::after {
-            content: 'X'; position: absolute; top: 50%; left: 50%;
-            transform: translate(-50%, -50%); color: #f0f0f0;
-            font-size: 20px; text-shadow: 2px 2px #000;
-        }
-        .pixel-checkbox:disabled { cursor: not-allowed; }
+        .drive-item:hover { background-color: #4a4a5a; }
     </style>
 </head>
 <body class="font-pixel text-arcade-light text-xl">
 
     <div class="container mx-auto p-4 md:p-8 max-w-6xl">
+        
         <header class="text-center mb-12">
             <h1 class="text-6xl md:text-8xl font-black uppercase text-arcade-pink tracking-widest" style="text-shadow: 4px 4px #7209b7;">
                 CasaRetro Roulette
@@ -140,14 +119,22 @@
                     <button id="spin-button" class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full z-10"></button>
                 </div>
             </div>
+
             <section class="w-full max-w-md bg-arcade-bg p-6 main-container">
                 <h2 class="text-3xl font-bold mb-6 text-center uppercase">INSERT COIN</h2>
-                <div class="flex flex-col gap-4 mt-6">
-                    <button id="load-sagas-button" class="pixel-button bg-arcade-blue text-arcade-black w-full text-2xl">LOAD SAGAS</button>
-                    <div class="grid grid-cols-2 gap-4">
-                        <button id="reset-button" class="pixel-button bg-arcade-pink text-arcade-black w-full">CLEAR WHEEL</button>
-                        <button id="clear-library-button" class="pixel-button bg-arcade-purple text-arcade-light w-full">CLEAR LIBRARY</button>
-                    </div>
+                <div class="flex flex-col gap-4">
+                    <input type="text" id="game-name-input" placeholder="Game Name..." class="pixel-input w-full">
+                    <input type="file" id="game-cover-input" accept="image/*" class="text-arcade-gray file:text-xl">
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-6">
+                    <button id="add-game-button" class="pixel-button bg-arcade-blue text-arcade-black">ADD GAME</button>
+                    <button id="reset-button" class="pixel-button bg-arcade-pink text-arcade-black">CLEAR WHEEL</button>
+                </div>
+                <!-- UPDATED: Google Drive Button starts disabled -->
+                <div class="mt-6">
+                    <button id="drive-connect-button" class="pixel-button bg-green-500 text-arcade-black w-full disabled:opacity-50 disabled:cursor-not-allowed" disabled>
+                        Loading Drive...
+                    </button>
                 </div>
             </section>
         </main>
@@ -156,10 +143,11 @@
              <h2 class="text-4xl font-bold mb-6 text-center uppercase">Game Library</h2>
             <div id="covers-gallery" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4"></div>
         </footer>
+
     </div>
     
     <!-- Winner Modal -->
-    <div id="winner-modal" class="modal-overlay fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center p-4 hidden z-50">
+    <div id="winner-modal" class="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center p-4 hidden z-50">
         <div class="modal-content bg-arcade-bg text-center p-8 max-w-md w-full">
             <h2 class="text-4xl font-bold text-arcade-blue mb-4 uppercase">WINNER!</h2>
             <img id="winner-cover" src="" alt="Portada del ganador" class="w-full mb-4" style="aspect-ratio: 3 / 4; object-fit: cover; border: 4px solid #1a1a1a; box-shadow: inset 0 0 0 4px #4a4a5a;">
@@ -167,59 +155,48 @@
             <button id="close-modal-button" class="mt-8 pixel-button bg-arcade-purple text-arcade-light">PLAY AGAIN</button>
         </div>
     </div>
-    
-    <!-- Saga Selection Modal -->
-    <div id="saga-selection-modal" class="modal-overlay fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center p-4 hidden z-50">
-        <div class="modal-content bg-arcade-bg text-center p-8 max-w-lg w-full">
-            <h2 class="text-4xl font-bold text-arcade-blue mb-6 uppercase">CHOOSE YOUR SAGA</h2>
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <button data-saga="the king of fighters" data-label="KOF" class="saga-select-btn pixel-button bg-arcade-pink text-arcade-black text-2xl">KOF</button>
-                <button data-saga="tekken" data-label="TEKKEN" class="saga-select-btn pixel-button bg-arcade-pink text-arcade-black text-2xl">TEKKEN</button>
-                <button data-saga="street fighter" data-label="STREET FIGHTER" class="saga-select-btn pixel-button bg-arcade-pink text-arcade-black text-2xl">STREET FIGHTER</button>
+
+    <!-- Google Drive Modal -->
+    <div id="drive-modal" class="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center p-4 hidden z-50">
+        <div class="modal-content bg-arcade-bg p-6 max-w-3xl w-full h-4/5 flex flex-col">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-3xl font-bold text-arcade-blue uppercase">Google Drive</h2>
+                <button id="close-drive-modal-button" class="text-4xl">&times;</button>
             </div>
-            <button id="close-saga-modal-button" class="mt-8 pixel-button bg-arcade-gray text-arcade-light">CANCEL</button>
+            <div id="drive-breadcrumbs" class="flex gap-2 mb-4 text-arcade-gray"></div>
+            <div id="drive-files" class="flex-grow overflow-y-auto bg-arcade-black p-4 grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-4">
+                <!-- Drive files will be listed here -->
+            </div>
         </div>
     </div>
 
-    <!-- Game Selection Modal -->
-    <div id="game-selection-modal" class="modal-overlay fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center p-4 hidden z-50">
-        <div class="modal-content bg-arcade-bg p-8 max-w-2xl w-full">
-            <h2 id="game-select-title" class="text-4xl font-bold text-arcade-blue mb-6 text-center uppercase">SELECT GAMES</h2>
-            <div id="game-select-list" class="game-select-list bg-arcade-black p-2 mb-6"></div>
-            <div class="flex justify-between gap-4">
-                <button id="add-selected-games-button" class="pixel-button bg-arcade-blue text-arcade-black flex-grow">ADD SELECTED</button>
-                <button id="close-game-select-modal-button" class="pixel-button bg-arcade-gray text-arcade-light">CANCEL</button>
-            </div>
-        </div>
-    </div>
 
     <script>
-        document.addEventListener('DOMContentLoaded', async () => {
+        document.addEventListener('DOMContentLoaded', () => {
             // --- DOM ELEMENT REFERENCES ---
             const canvas = document.getElementById('roulette-wheel');
             const ctx = canvas.getContext('2d');
             const spinButton = document.getElementById('spin-button');
+            const addGameButton = document.getElementById('add-game-button');
+            const gameNameInput = document.getElementById('game-name-input');
+            const gameCoverInput = document.getElementById('game-cover-input');
             const coversGallery = document.getElementById('covers-gallery');
             const resetButton = document.getElementById('reset-button');
             const winnerModal = document.getElementById('winner-modal');
             const winnerCover = document.getElementById('winner-cover');
             const winnerName = document.getElementById('winner-name');
             const closeModalButton = document.getElementById('close-modal-button');
-            const loadSagasButton = document.getElementById('load-sagas-button');
-            const sagaSelectionModal = document.getElementById('saga-selection-modal');
-            const closeSagaModalButton = document.getElementById('close-saga-modal-button');
-            const sagaSelectButtons = document.querySelectorAll('.saga-select-btn');
-            const gameSelectionModal = document.getElementById('game-selection-modal');
-            const gameSelectList = document.getElementById('game-select-list');
-            const gameSelectTitle = document.getElementById('game-select-title');
-            const addSelectedGamesButton = document.getElementById('add-selected-games-button');
-            const closeGameSelectModalButton = document.getElementById('close-game-select-modal-button');
-            const clearLibraryButton = document.getElementById('clear-library-button');
             
+            // --- GOOGLE DRIVE DOM REFERENCES ---
+            const driveConnectButton = document.getElementById('drive-connect-button');
+            const driveModal = document.getElementById('drive-modal');
+            const closeDriveModalButton = document.getElementById('close-drive-modal-button');
+            const driveFilesContainer = document.getElementById('drive-files');
+            const driveBreadcrumbs = document.getElementById('drive-breadcrumbs');
+
             // --- APPLICATION STATE ---
             let allGames = [];
             let gamesInWheel = [];
-            let apiCache = {}; // Object to hold cached API results
             const wheelColors = ["#f72585", "#7209b7", "#00a8f3", "#4a4a5a"];
             let startAngle = 0;
             let arc = 0;
@@ -228,158 +205,16 @@
             let audioContext;
             let lastTickAngle = 0;
 
-            // --- CACHE FUNCTIONS ---
-            function loadCacheFromStorage() {
-                const cachedData = localStorage.getItem('gameApiCache');
-                if (cachedData) {
-                    apiCache = JSON.parse(cachedData);
-                }
-            }
+            // --- GOOGLE DRIVE API CONFIGURATION ---
+            const API_KEY = 'AIzaSyD-0tLu5kAO9aeSp-5sHoyRcW13_dJXApM'; // <-- IMPORTANT: Replace with your API Key
+            const CLIENT_ID = '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'; // <-- IMPORTANT: Replace with your OAuth Client ID
+            const SCOPES = 'https://www.googleapis.com/auth/drive.readonly';
+            let tokenClient;
+            let gapiInited = false;
+            let gisInited = false;
+            let driveFolderHistory = [];
 
-            function saveCacheToStorage() {
-                localStorage.setItem('gameApiCache', JSON.stringify(apiCache));
-            }
-
-            // --- CORE FUNCTIONS ---
-
-            function populateSelectionModal(gameData) {
-                gameSelectList.innerHTML = ''; // Clear previous list
-                if (gameData.length === 0) {
-                    gameSelectList.innerHTML = '<p class="text-center p-8">NO GAMES FOUND</p>';
-                    return;
-                }
-
-                gameData.forEach(apiGame => {
-                    if (!apiGame.background_image) return;
-
-                    const isDuplicate = allGames.some(g => g.name === apiGame.name);
-
-                    const item = document.createElement('label');
-                    item.className = 'game-select-item';
-                    if (isDuplicate) {
-                        item.classList.add('is-duplicate');
-                        item.title = "Already in library";
-                    }
-                    
-                    const checkbox = document.createElement('input');
-                    checkbox.type = 'checkbox';
-                    checkbox.className = 'pixel-checkbox';
-                    checkbox.dataset.gameData = JSON.stringify(apiGame);
-                    
-                    if (isDuplicate) {
-                        checkbox.checked = true;
-                        checkbox.disabled = true;
-                    }
-
-                    const img = document.createElement('img');
-                    img.src = apiGame.background_image;
-                    img.className = 'w-12 h-16 object-cover mx-4 border-2 border-arcade-black';
-
-                    const nameSpan = document.createElement('span');
-                    nameSpan.textContent = apiGame.name;
-
-                    item.appendChild(checkbox);
-                    item.appendChild(img);
-                    item.appendChild(nameSpan);
-                    gameSelectList.appendChild(item);
-                });
-            }
-
-            async function fetchSagaForSelection(searchQuery) {
-                const sagaKey = searchQuery.replace(/\s+/g, '_');
-                const sagaName = searchQuery.toUpperCase();
-                gameSelectTitle.textContent = `SELECT FROM ${sagaName}`;
-                
-                sagaSelectionModal.classList.add('hidden');
-                gameSelectionModal.classList.remove('hidden');
-
-                if (apiCache[sagaKey]) {
-                    populateSelectionModal(apiCache[sagaKey]);
-                    return;
-                }
-
-                gameSelectList.innerHTML = `<p class="text-center p-8">FETCHING ${sagaName} GAMES...</p>`;
-                sagaSelectButtons.forEach(button => button.disabled = true);
-
-                try {
-                    const proxyUrl = `/.netlify/functions/fetch-games?search=${encodeURIComponent(searchQuery)}`;
-                    const response = await fetch(proxyUrl);
-                    
-                    if (!response.ok) throw new Error(`Proxy Error: ${response.statusText}`);
-                    
-                    const gameData = await response.json();
-                    
-                    apiCache[sagaKey] = gameData;
-                    saveCacheToStorage();
-                    populateSelectionModal(gameData);
-
-                } catch (error) {
-                    console.error("Failed to fetch games via proxy:", error);
-                    gameSelectList.innerHTML = '<p class="text-center p-8 text-arcade-pink">ERROR LOADING GAMES</p>';
-                } finally {
-                    sagaSelectButtons.forEach(button => button.disabled = false);
-                }
-            }
-
-            async function handleAddSelectedGames() {
-                const selectedCheckboxes = gameSelectList.querySelectorAll('input[type="checkbox"]:checked:not(:disabled)');
-                if (selectedCheckboxes.length === 0) {
-                    gameSelectionModal.classList.add('hidden');
-                    return;
-                }
-
-                addSelectedGamesButton.textContent = 'LOADING...';
-                addSelectedGamesButton.disabled = true;
-
-                const gamePromises = Array.from(selectedCheckboxes).map(checkbox => {
-                    return new Promise(async (resolve) => {
-                        const apiGame = JSON.parse(checkbox.dataset.gameData);
-
-                        if (allGames.some(g => g.name === apiGame.name)) {
-                            resolve(null);
-                            return;
-                        }
-
-                        const imageForWheel = new Image();
-                        imageForWheel.crossOrigin = "Anonymous";
-                        imageForWheel.onload = () => resolve({
-                            name: apiGame.name,
-                            image: imageForWheel,
-                            coverUrl: apiGame.background_image,
-                            initials: generateGameInitials(apiGame.name)
-                        });
-                        imageForWheel.onerror = () => resolve(null);
-                        
-                        imageForWheel.src = `https://corsproxy.io/?${encodeURIComponent(apiGame.background_image)}`;
-                    });
-                });
-
-                const newGames = (await Promise.all(gamePromises)).filter(Boolean);
-                
-                allGames.push(...newGames);
-                gamesInWheel.push(...newGames);
-                newGames.forEach(displayCoverInGallery);
-                saveGamesToStorage();
-                updateGalleryVisuals();
-                drawRoulette();
-
-                addSelectedGamesButton.textContent = 'ADD SELECTED';
-                addSelectedGamesButton.disabled = false;
-                gameSelectionModal.classList.add('hidden');
-            }
-            
-            // --- PERSISTENCE CHANGE: Updated clear library function ---
-            function handleClearLibrary() {
-                allGames = [];
-                gamesInWheel = [];
-                // Clear all related items from storage
-                localStorage.removeItem('fgcRouletteGames');
-                localStorage.removeItem('fgcRouletteWheelGames');
-                localStorage.removeItem('gameApiCache');
-                apiCache = {};
-                coversGallery.innerHTML = '';
-                drawRoulette();
-            }
+            // --- CORE FUNCTIONS (Existing logic) ---
 
             function drawRoulette() {
                 if (!canvas.getContext) return;
@@ -387,10 +222,8 @@
                 const textRadius = 180;
                 const insideRadius = 0;
                 const imageRadius = 110;
-
                 arc = gamesInWheel.length > 0 ? 2 * Math.PI / gamesInWheel.length : 2 * Math.PI;
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
-                
                 if (gamesInWheel.length === 0) {
                     ctx.fillStyle = '#2c2c3a';
                     ctx.beginPath();
@@ -405,7 +238,6 @@
                     ctx.restore();
                     return;
                 }
-
                 gamesInWheel.forEach((game, i) => {
                     const angle = startAngle + i * arc;
                     ctx.fillStyle = wheelColors[i % wheelColors.length];
@@ -419,23 +251,18 @@
                     ctx.save();
                     ctx.fillStyle = '#f0f0f0';
                     ctx.font = 'bold 24px VT323, monospace';
-                    ctx.shadowColor = "black";
-                    ctx.shadowOffsetX = 2;
-                    ctx.shadowOffsetY = 2;
-                    ctx.shadowBlur = 0;
+                    ctx.shadowColor = "black"; ctx.shadowOffsetX = 2; ctx.shadowOffsetY = 2; ctx.shadowBlur = 0;
                     ctx.translate(250 + Math.cos(angle + arc / 2) * textRadius, 250 + Math.sin(angle + arc / 2) * textRadius);
                     ctx.rotate(angle + arc / 2 + Math.PI / 2);
                     const text = game.name.toUpperCase();
                     ctx.fillText(text, -ctx.measureText(text).width / 2, 0);
                     ctx.restore();
                     ctx.save();
-
                     if (game.image) {
                          ctx.translate(250 + Math.cos(angle + arc / 2) * imageRadius, 250 + Math.sin(angle + arc / 2) * imageRadius);
                         ctx.rotate(angle + arc / 2 + Math.PI / 2);
                         ctx.drawImage(game.image, -30, -40, 60, 80);
-                        ctx.strokeStyle = '#f0f0f0';
-                        ctx.lineWidth = 3;
+                        ctx.strokeStyle = '#f0f0f0'; ctx.lineWidth = 3;
                         ctx.strokeRect(-30, -40, 60, 80);
                     }
                     ctx.restore();
@@ -446,178 +273,290 @@
                 const coverDiv = document.createElement('div');
                 coverDiv.className = 'cover-item relative group';
                 coverDiv.dataset.name = game.name;
-
                 const coverImg = document.createElement('img');
                 coverImg.src = game.coverUrl;
                 coverImg.alt = game.name;
-                coverImg.className = 'w-full cursor-pointer';
-                coverImg.style.aspectRatio = '3 / 4';
-                coverImg.style.objectFit = 'cover';
+                coverImg.className = 'w-full h-auto object-cover cursor-pointer';
                 coverImg.onerror = () => { coverImg.src = 'https://placehold.co/275x387/2c2c3a/f0f0f0?text=Error'; };
-                
                 const deleteButton = document.createElement('button');
                 deleteButton.className = 'delete-button absolute top-2 right-2 w-8 h-8 bg-arcade-pink text-arcade-black text-2xl flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200 pixel-button';
                 deleteButton.innerHTML = '&times;';
                 deleteButton.style.boxShadow = '2px 2px 0px #000';
-                deleteButton.addEventListener('click', (event) => {
-                    event.stopPropagation();
-                    handleDeleteGame(game.name);
-                });
-
-                const initialsIndicator = document.createElement('div');
-                initialsIndicator.className = 'initials-indicator';
-                initialsIndicator.textContent = game.initials;
-
+                deleteButton.addEventListener('click', (event) => { event.stopPropagation(); handleDeleteGame(game.name); });
                 coverDiv.appendChild(coverImg);
                 coverDiv.appendChild(deleteButton);
-                coverDiv.appendChild(initialsIndicator);
                 coverDiv.addEventListener('click', () => { toggleGameInWheel(game.name); });
                 coversGallery.appendChild(coverDiv);
             }
             
-            function generateGameInitials(name) {
-                const lowerName = name.toLowerCase();
-                let base = '';
-                
-                if (lowerName.includes('the king of fighters')) base = 'KOF';
-                else if (lowerName.includes('street fighter')) base = 'SF';
-                else if (lowerName.includes('tekken')) base = 'T';
-                else { return name.substring(0, 4); }
-
-                const match = name.match(/\d+|V|IV|III|II|Alpha|Ultimate Match/i);
-                if (match) {
-                    let suffix = match[0];
-                    if(suffix.toLowerCase() === 'alpha') return base + 'A' + (name.match(/Alpha (\d)/i)?.[1] || '');
-                    if(suffix.toLowerCase() === 'ultimate match') return base + (name.match(/'(\d\d)/i)?.[1] || '') + 'UM';
-                    return base + suffix;
+            function handleAddGame() {
+                const name = gameNameInput.value.trim();
+                const file = gameCoverInput.files[0];
+                if (!name || !file) return;
+                if (allGames.some(game => game.name.toLowerCase() === name.toLowerCase())) {
+                    gameNameInput.style.boxShadow = 'inset 0 0 0 4px #f72585';
+                    setTimeout(() => { gameNameInput.style.boxShadow = 'inset 0 0 0 4px #4a4a5a'; }, 2000);
+                    return;
                 }
-                
-                return base;
+                const reader = new FileReader();
+                reader.onload = (e) => processAndAddImage(name, e.target.result, file.type);
+                reader.readAsDataURL(file);
+            }
+
+            function processAndAddImage(name, imageDataUrl, imageType) {
+                const originalImage = new Image();
+                originalImage.onload = () => {
+                    const resizeCanvas = document.createElement('canvas');
+                    const targetWidth = 275; const targetHeight = 387;
+                    resizeCanvas.width = targetWidth; resizeCanvas.height = targetHeight;
+                    const resizeCtx = resizeCanvas.getContext('2d');
+                    resizeCtx.drawImage(originalImage, 0, 0, targetWidth, targetHeight);
+                    const resizedCoverUrl = resizeCanvas.toDataURL(imageType);
+                    const imageForWheel = new Image();
+                    imageForWheel.onload = () => {
+                        const newGame = { name: name, image: imageForWheel, coverUrl: resizedCoverUrl };
+                        allGames.push(newGame);
+                        if (!gamesInWheel.some(g => g.name === newGame.name)) {
+                            gamesInWheel.push(newGame);
+                        }
+                        displayCoverInGallery(newGame);
+                        saveGamesToStorage();
+                        updateGalleryVisuals();
+                        drawRoulette();
+                        gameNameInput.value = ''; gameCoverInput.value = '';
+                    };
+                    imageForWheel.src = resizedCoverUrl;
+                };
+                originalImage.src = imageDataUrl;
             }
             
             function handleDeleteGame(gameName) {
                 allGames = allGames.filter(game => game.name !== gameName);
                 gamesInWheel = gamesInWheel.filter(game => game.name !== gameName);
                 const coverElement = document.querySelector(`.cover-item[data-name="${gameName}"]`);
-                if (coverElement) coverElement.remove();
+                if (coverElement) { coverElement.remove(); }
                 saveGamesToStorage();
                 drawRoulette();
             }
 
-            // --- PERSISTENCE CHANGE: Toggle now saves the state ---
             function toggleGameInWheel(gameName) {
                 const gameIndexInWheel = gamesInWheel.findIndex(game => game.name === gameName);
                 if (gameIndexInWheel > -1) {
                     gamesInWheel.splice(gameIndexInWheel, 1);
                 } else {
                     const gameToAdd = allGames.find(game => game.name === gameName);
-                    if (gameToAdd) gamesInWheel.push(gameToAdd);
+                    if (gameToAdd) { gamesInWheel.push(gameToAdd); }
                 }
-                // Save the new state of the wheel to localStorage
-                saveGamesToStorage();
                 updateGalleryVisuals();
                 drawRoulette();
             }
 
             function updateGalleryVisuals() {
                 document.querySelectorAll('.cover-item').forEach(item => {
-                    item.classList.toggle('in-wheel', gamesInWheel.some(game => game.name === item.dataset.name));
+                    const gameName = item.dataset.name;
+                    item.classList.toggle('in-wheel', gamesInWheel.some(game => game.name === gameName));
                 });
             }
 
-            // --- PERSISTENCE CHANGE: Updated save function ---
             function saveGamesToStorage() {
-                // Save the entire library of games
-                const storableLibrary = allGames.map(game => ({ 
-                    name: game.name, 
-                    coverUrl: game.coverUrl, 
-                    initials: game.initials 
-                }));
-                localStorage.setItem('fgcRouletteGames', JSON.stringify(storableLibrary));
-
-                // Save only the names of games currently in the wheel
-                const wheelGameNames = gamesInWheel.map(game => game.name);
-                localStorage.setItem('fgcRouletteWheelGames', JSON.stringify(wheelGameNames));
+                const storableList = allGames.map(game => ({ name: game.name, coverUrl: game.coverUrl }));
+                localStorage.setItem('fgcRouletteGames', JSON.stringify(storableList));
             }
 
-            // --- PERSISTENCE CHANGE: Updated load function ---
-            async function loadGamesFromStorage() {
-                const savedLibrary = localStorage.getItem('fgcRouletteGames');
-                // Load the list of game names that should be in the wheel
-                const savedWheelGameNames = JSON.parse(localStorage.getItem('fgcRouletteWheelGames')) || [];
-
-                if (!savedLibrary) {
-                    drawRoulette();
-                    return;
-                }
-                
-                const parsedLibrary = JSON.parse(savedLibrary);
-                if (parsedLibrary.length === 0) {
-                    drawRoulette();
-                    return;
-                }
-
-                const imageLoadPromises = parsedLibrary.map(savedGame => {
-                    return new Promise((resolve) => {
-                        const img = new Image();
-                        img.crossOrigin = "Anonymous";
-                        // Use the CORS proxy here to prevent errors on reload
-                        img.src = `https://corsproxy.io/?${encodeURIComponent(savedGame.coverUrl)}`;
-                        img.onload = () => {
-                            const newGame = { 
-                                name: savedGame.name, 
-                                image: img, 
-                                coverUrl: savedGame.coverUrl,
-                                initials: savedGame.initials || generateGameInitials(savedGame.name)
-                            };
-                            // Add every loaded game to the main library array
-                            allGames.push(newGame);
-                            displayCoverInGallery(newGame);
-                            resolve(newGame); // Resolve with the full game object
-                        };
-                        img.onerror = () => resolve(null); // Don't add games with failed images
-                    });
+            function loadGamesFromStorage() {
+                const savedGames = localStorage.getItem('fgcRouletteGames');
+                if (!savedGames) { drawRoulette(); return; }
+                const parsedGames = JSON.parse(savedGames);
+                if (parsedGames.length === 0) { drawRoulette(); return; }
+                let loadedImagesCount = 0;
+                parsedGames.forEach(savedGame => {
+                    const img = new Image();
+                    img.src = savedGame.coverUrl;
+                    const onImageLoadOrError = () => {
+                        loadedImagesCount++;
+                        if (loadedImagesCount === parsedGames.length) {
+                            drawRoulette();
+                            updateGalleryVisuals();
+                        }
+                    };
+                    img.onload = () => {
+                        const newGame = { name: savedGame.name, image: img, coverUrl: savedGame.coverUrl };
+                        allGames.push(newGame);
+                        gamesInWheel.push(newGame);
+                        displayCoverInGallery(newGame);
+                        onImageLoadOrError();
+                    };
+                    img.onerror = onImageLoadOrError;
                 });
-                
-                // Wait for all images to finish loading and get the full game objects
-                const loadedGames = (await Promise.all(imageLoadPromises)).filter(Boolean);
-                
-                // Now, populate the wheel ONLY with the games whose names were saved
-                gamesInWheel = loadedGames.filter(game => savedWheelGameNames.includes(game.name));
-                
-                drawRoulette();
-                updateGalleryVisuals();
             }
 
-            // --- PERSISTENCE CHANGE: Reset now saves the empty wheel state ---
             function handleReset() {
                 gamesInWheel = [];
-                // Save the fact that the wheel is now empty
-                saveGamesToStorage();
                 updateGalleryVisuals();
                 drawRoulette();
             }
 
-            function playSound(type, duration = 0.05, frequency = 800, gain = 0.1) {
-                if (!audioContext) return;
-                const oscillator = audioContext.createOscillator();
-                const gainNode = audioContext.createGain();
-                oscillator.type = type;
-                oscillator.frequency.setValueAtTime(frequency, audioContext.currentTime);
-                gainNode.gain.setValueAtTime(gain, audioContext.currentTime);
-                gainNode.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + duration);
-                oscillator.connect(gainNode);
-                gainNode.connect(audioContext.destination);
-                oscillator.start(audioContext.currentTime);
-                oscillator.stop(audioContext.currentTime + duration);
+            // --- GOOGLE DRIVE FUNCTIONS ---
+
+            // NEW: Function to check if both APIs are ready
+            function checkApisReady() {
+                if (gapiInited && gisInited) {
+                    driveConnectButton.disabled = false;
+                    driveConnectButton.textContent = 'CONNECT TO DRIVE';
+                }
             }
 
-            function rotateWheel(spinTime, spinTimeTotal, spinAngleStart) {
-                spinTime += 30;
-                if (spinTime >= spinTimeTotal) {
-                    stopRotateWheel();
+            // This function is called when the Google API script is loaded.
+            function gapiLoaded() {
+                gapi.load('client', initializeGapiClient);
+            }
+
+            // Initializes the GAPI client.
+            async function initializeGapiClient() {
+                await gapi.client.init({
+                    apiKey: API_KEY,
+                    discoveryDocs: ['https://www.googleapis.com/discovery/v1/apis/drive/v3/rest'],
+                });
+                gapiInited = true;
+                checkApisReady(); // Check if ready
+            }
+
+            // This function is called when the Google Identity Services script is loaded.
+            function gisLoaded() {
+                tokenClient = google.accounts.oauth2.initTokenClient({
+                    client_id: CLIENT_ID,
+                    scope: SCOPES,
+                    callback: '', // Callback is handled by the promise.
+                });
+                gisInited = true;
+                checkApisReady(); // Check if ready
+            }
+
+            // Handles the authentication flow.
+            function handleAuthClick() {
+                if (gapi.client.getToken() === null) {
+                    tokenClient.requestAccessToken({prompt: 'consent'});
+                } else {
+                    openDriveModal();
+                }
+            }
+
+            // Opens the Drive modal and fetches root folder contents.
+            function openDriveModal() {
+                driveModal.classList.remove('hidden');
+                listDriveFiles('root', 'My Drive');
+            }
+
+            // Lists files and folders from Google Drive.
+            async function listDriveFiles(folderId, folderName) {
+                driveFilesContainer.innerHTML = '<p class="col-span-full text-center">Loading...</p>';
+                
+                if (driveFolderHistory.length === 0 || driveFolderHistory[driveFolderHistory.length - 1].id !== folderId) {
+                    driveFolderHistory.push({ id: folderId, name: folderName });
+                }
+                updateBreadcrumbs();
+
+                try {
+                    const response = await gapi.client.drive.files.list({
+                        'pageSize': 100,
+                        'q': `'${folderId}' in parents and (mimeType='application/vnd.google-apps.folder' or mimeType contains 'image/') and trashed=false`,
+                        'fields': 'files(id, name, mimeType, iconLink, thumbnailLink)'
+                    });
+                    
+                    driveFilesContainer.innerHTML = '';
+                    const files = response.result.files;
+
+                    if (files && files.length > 0) {
+                        files.sort((a, b) => {
+                            if (a.mimeType === b.mimeType) return a.name.localeCompare(b.name);
+                            return a.mimeType === 'application/vnd.google-apps.folder' ? -1 : 1;
+                        }).forEach((file) => {
+                            const fileElement = document.createElement('div');
+                            fileElement.className = 'drive-item flex flex-col items-center p-2 text-center';
+                            
+                            const icon = document.createElement('img');
+                            icon.src = file.mimeType === 'application/vnd.google-apps.folder' ? 'https://upload.wikimedia.org/wikipedia/commons/5/59/Google_Drive_Folder_Icon.svg' : file.thumbnailLink;
+                            icon.className = 'w-16 h-16 object-contain mb-2';
+                            
+                            const name = document.createElement('p');
+                            name.textContent = file.name;
+                            name.className = 'text-sm break-all';
+                            
+                            fileElement.appendChild(icon);
+                            fileElement.appendChild(name);
+                            
+                            fileElement.onclick = () => {
+                                if (file.mimeType === 'application/vnd.google-apps.folder') {
+                                    listDriveFiles(file.id, file.name);
+                                } else {
+                                    addGameFromDrive(file);
+                                }
+                            };
+                            driveFilesContainer.appendChild(fileElement);
+                        });
+                    } else {
+                        driveFilesContainer.innerHTML = '<p class="col-span-full text-center">This folder is empty.</p>';
+                    }
+                } catch (err) {
+                    console.error("Error listing files:", err);
+                    driveFilesContainer.innerHTML = `<p class="col-span-full text-center text-arcade-pink">Error: ${err.result.error.message}</p>`;
+                     if (err.result.error.status === 'UNAUTHENTICATED') {
+                        gapi.client.setToken(null);
+                        driveFilesContainer.innerHTML += '<p class="col-span-full text-center">Please connect to Drive again.</p>';
+                    }
+                }
+            }
+            
+            // Updates the breadcrumb navigation in the Drive modal.
+            function updateBreadcrumbs() {
+                driveBreadcrumbs.innerHTML = '';
+                driveFolderHistory.forEach((folder, index) => {
+                    const crumb = document.createElement('span');
+                    crumb.className = 'cursor-pointer hover:text-arcade-blue';
+                    crumb.textContent = folder.name + (index < driveFolderHistory.length - 1 ? ' >' : '');
+                    crumb.onclick = () => {
+                        driveFolderHistory = driveFolderHistory.slice(0, index + 1);
+                        listDriveFiles(folder.id, folder.name);
+                    };
+                    driveBreadcrumbs.appendChild(crumb);
+                });
+            }
+
+            // Fetches an image from Drive and adds it to the game library.
+            async function addGameFromDrive(file) {
+                const gameName = file.name.replace(/\.[^/.]+$/, "");
+
+                if (allGames.some(game => game.name.toLowerCase() === gameName.toLowerCase())) {
+                    // Use a custom modal/alert in the future instead of the browser's default alert
+                    alert(`"${gameName}" is already in your library.`);
                     return;
                 }
+
+                try {
+                    driveFilesContainer.innerHTML = `<p class="col-span-full text-center">Adding ${gameName}...</p>`;
+                    const response = await gapi.client.drive.files.get({
+                        fileId: file.id,
+                        alt: 'media'
+                    });
+                    
+                    const blob = new Blob([response.body], { type: file.mimeType });
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        processAndAddImage(gameName, e.target.result, file.mimeType);
+                        driveModal.classList.add('hidden');
+                    };
+                    reader.readAsDataURL(blob);
+
+                } catch (err) {
+                    console.error("Error fetching file content:", err);
+                    alert("Could not add the game. See console for details.");
+                }
+            }
+
+            // --- SPINNING LOGIC (Existing) ---
+            function rotateWheel(spinTime, spinTimeTotal, spinAngleStart) {
+                spinTime += 30;
+                if (spinTime >= spinTimeTotal) { stopRotateWheel(); return; }
                 const spinAngle = spinAngleStart - easeOut(spinTime, 0, spinAngleStart, spinTimeTotal);
                 startAngle += (spinAngle * Math.PI / 180);
                 if (startAngle - lastTickAngle > arc) {
@@ -630,63 +569,71 @@
             
             function stopRotateWheel() {
                 cancelAnimationFrame(spinTimeout);
-                isSpinning = false;
-                spinButton.disabled = false;
+                isSpinning = false; spinButton.disabled = false;
                 if (gamesInWheel.length === 0) return;
                 playSound('sine', 0.5, 900, 0.2);
                 const degrees = startAngle * 180 / Math.PI + 90;
                 const arcd = arc * 180 / Math.PI;
                 const index = Math.floor((360 - degrees % 360) / arcd);
                 const winner = gamesInWheel[index];
-                if (winner) {
-                    winnerName.textContent = winner.name;
-                    winnerCover.src = winner.coverUrl;
-                    winnerModal.classList.remove('hidden');
-                }
+                winnerName.textContent = winner.name;
+                winnerCover.src = winner.coverUrl;
+                winnerModal.classList.remove('hidden');
             }
 
             function easeOut(t, b, c, d) {
-                const ts = (t /= d) * t;
-                const tc = ts * t;
+                const ts = (t /= d) * t; const tc = ts * t;
                 return b + c * (tc + -3 * ts + 3 * t);
             }
 
             function handleSpin() {
                 if (isSpinning || gamesInWheel.length < 2) return;
-                if (!audioContext) audioContext = new (window.AudioContext || window.webkitAudioContext)();
-                isSpinning = true;
-                spinButton.disabled = true;
+                if (!audioContext) { audioContext = new (window.AudioContext || window.webkitContext)(); }
+                isSpinning = true; spinButton.disabled = true;
                 const spinAngleStart = Math.random() * 10 + 10;
                 const spinTimeTotal = Math.random() * 3000 + 8000; 
                 lastTickAngle = startAngle;
                 rotateWheel(0, spinTimeTotal, spinAngleStart);
             }
+            
+            function playSound(type, duration = 0.05, frequency = 800, gain = 0.1) {
+                 if (!audioContext) return;
+                const oscillator = audioContext.createOscillator();
+                const gainNode = audioContext.createGain();
+                oscillator.type = type;
+                oscillator.frequency.setValueAtTime(frequency, audioContext.currentTime);
+                gainNode.gain.setValueAtTime(gain, audioContext.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + duration);
+                oscillator.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+                oscillator.start(audioContext.currentTime);
+                oscillator.stop(audioContext.currentTime + duration);
+            }
 
             // --- EVENT LISTENERS ---
-            loadSagasButton.addEventListener('click', () => sagaSelectionModal.classList.remove('hidden'));
-            closeSagaModalButton.addEventListener('click', () => sagaSelectionModal.classList.add('hidden'));
-            sagaSelectionModal.addEventListener('click', (e) => { if (e.target === sagaSelectionModal) sagaSelectionModal.classList.add('hidden'); });
-            
-            sagaSelectButtons.forEach(button => {
-                button.addEventListener('click', () => { fetchSagaForSelection(button.dataset.saga); });
-            });
-
-            addSelectedGamesButton.addEventListener('click', handleAddSelectedGames);
-            closeGameSelectModalButton.addEventListener('click', () => gameSelectionModal.classList.add('hidden'));
-            gameSelectionModal.addEventListener('click', (e) => { if (e.target === gameSelectionModal) gameSelectionModal.classList.add('hidden'); });
-            
+            addGameButton.addEventListener('click', handleAddGame);
             resetButton.addEventListener('click', handleReset);
-            clearLibraryButton.addEventListener('click', handleClearLibrary);
             spinButton.addEventListener('click', handleSpin);
             closeModalButton.addEventListener('click', () => winnerModal.classList.add('hidden'));
-            winnerModal.addEventListener('click', (e) => { if (e.target === winnerModal) winnerModal.classList.add('hidden'); });
+            winnerModal.addEventListener('click', (e) => { if (e.target === winnerModal) { winnerModal.classList.add('hidden'); } });
+
+            // --- DRIVE EVENT LISTENERS ---
+            driveConnectButton.addEventListener('click', () => {
+                // The old check is no longer needed here because the button is disabled
+                handleAuthClick();
+            });
+            closeDriveModalButton.addEventListener('click', () => {
+                driveModal.classList.add('hidden');
+                driveFolderHistory = [];
+            });
+
 
             // --- INITIALIZATION ---
-            document.body.style.opacity = '0.5';
-            loadCacheFromStorage();
-            await loadGamesFromStorage();
-            document.body.style.opacity = '1';
+            loadGamesFromStorage();
         });
     </script>
+    <!-- Load Google API scripts after the main script -->
+    <script async defer src="https://apis.google.com/js/api.js" onload="gapiLoaded()"></script>
+    <script async defer src="https://accounts.google.com/gsi/client" onload="gisLoaded()"></script>
 </body>
 </html>
